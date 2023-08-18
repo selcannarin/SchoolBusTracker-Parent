@@ -1,13 +1,13 @@
 package com.example.schoolbustrackerparent.data.repository.auth
 
 import com.example.schoolbustrackerparent.data.datasource.auth.AuthDataSource
-import com.example.schoolbustrackerparent.data.model.Parent
 import com.google.firebase.auth.FirebaseUser
 import javax.inject.Inject
 
 class AuthRepositoryImpl @Inject constructor(
     private val dataSource: AuthDataSource
 ) : AuthRepository {
+
     override suspend fun signUpWithStudentNumberAndPhone(
         studentNumber: Int,
         parentPhone: Long,
@@ -26,8 +26,12 @@ class AuthRepositoryImpl @Inject constructor(
         return dataSource.signInWithEmailPassword(email, password)
     }
 
-    override suspend fun saveUser(parent: Parent): Boolean {
-        return dataSource.saveUser(parent)
+    override suspend fun saveUser(
+        studentNumber: Int,
+        parentPhone: Long,
+        parentEmail: String
+    ): Boolean {
+        return dataSource.saveUser(studentNumber, parentPhone, parentEmail)
     }
 
     override fun signOut(): FirebaseUser? {

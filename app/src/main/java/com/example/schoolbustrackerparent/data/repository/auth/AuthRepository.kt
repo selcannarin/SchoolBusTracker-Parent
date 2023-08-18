@@ -1,6 +1,5 @@
 package com.example.schoolbustrackerparent.data.repository.auth
 
-import com.example.schoolbustrackerparent.data.model.Parent
 import com.google.firebase.auth.FirebaseUser
 
 interface AuthRepository {
@@ -14,7 +13,7 @@ interface AuthRepository {
 
     suspend fun signInWithEmailPassword(email: String, password: String): FirebaseUser?
 
-    suspend fun saveUser(parent: Parent): Boolean
+    suspend fun saveUser(studentNumber: Int, parentPhone: Long, parentEmail: String): Boolean
 
     fun signOut(): FirebaseUser?
 

@@ -6,6 +6,7 @@ import com.example.schoolbustrackerparent.data.repository.auth.AuthRepository
 import com.example.schoolbustrackerparent.data.repository.auth.AuthRepositoryImpl
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -18,8 +19,12 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun provideAuthDataSource(auth: FirebaseAuth, firestore: FirebaseFirestore): AuthDataSource {
-        return AuthDataSourceImpl(auth, firestore)
+    fun provideAuthDataSource(
+        auth: FirebaseAuth,
+        firestore: FirebaseFirestore,
+        storage: FirebaseStorage
+    ): AuthDataSource {
+        return AuthDataSourceImpl(auth, firestore, storage)
     }
 
     @Singleton
@@ -27,6 +32,13 @@ object AppModule {
     fun provideFirestore(): FirebaseFirestore {
         return FirebaseFirestore.getInstance()
     }
+
+    @Singleton
+    @Provides
+    fun provideStorage(): FirebaseStorage {
+        return FirebaseStorage.getInstance()
+    }
+
 
     @Singleton
     @Provides
