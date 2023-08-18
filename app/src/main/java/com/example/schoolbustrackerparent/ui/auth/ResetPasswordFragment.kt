@@ -32,9 +32,7 @@ class ResetPasswordFragment : Fragment(R.layout.fragment_reset_password) {
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentResetPasswordBinding.inflate(inflater, container, false)
         // (activity as MainActivity).setBottomNavVisibilityGone()
@@ -59,15 +57,11 @@ class ResetPasswordFragment : Fragment(R.layout.fragment_reset_password) {
                     }
 
                     is AuthEvents.ErrorCode -> {
-                        if (event.code == 1)
-                            binding?.apply {
-                                editTextResetEmail.error = "Email should not be empty!"
-                            }
+                        if (event.code == 1) binding?.apply {
+                            editTextResetEmail.error = "Email should not be empty!"
+                        }
                     }
-
-                    else -> {}
                 }
-
             }
         }
     }

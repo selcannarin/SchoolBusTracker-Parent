@@ -1,11 +1,11 @@
 package com.example.schoolbustrackerparent.ui.auth
 
-import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.schoolbustrackerparent.data.repository.auth.AuthRepository
 import com.example.schoolbustrackerparent.util.AuthEvents
+import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.FirebaseUser
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
@@ -13,12 +13,12 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+
 @HiltViewModel
 class AuthViewModel @Inject constructor(
     private val repository: AuthRepository
 ) : ViewModel() {
 
-    private val TAG = "AuthViewModel"
     private val _firebaseUser = MutableLiveData<FirebaseUser?>()
     val currentUser get() = _firebaseUser
 
@@ -29,11 +29,11 @@ class AuthViewModel @Inject constructor(
     fun signInUser(email: String, password: String) = viewModelScope.launch {
         when {
             email.isEmpty() -> {
-                eventsChannel.send(AuthEvents.ErrorCode(1))
+                eventsChannel.send(AuthEvents.ErrorCode(3))
             }
 
             password.isEmpty() -> {
-                eventsChannel.send(AuthEvents.ErrorCode(2))
+                eventsChannel.send(AuthEvents.ErrorCode(4))
             }
 
             else -> {
@@ -50,24 +50,24 @@ class AuthViewModel @Inject constructor(
         confirmPass: String
     ) = viewModelScope.launch {
         when {
-            (studentNumber == null) -> {
-                eventsChannel.send(AuthEvents.ErrorCode(1))
-            }
-
-            (phoneNumber == null) -> {
-                eventsChannel.send(AuthEvents.ErrorCode(2))
-            }
-
-            email.isEmpty() -> {
-                eventsChannel.send(AuthEvents.ErrorCode(3))
-            }
-
-            password.isEmpty() -> {
+            studentNumber <= 0 -> {
                 eventsChannel.send(AuthEvents.ErrorCode(4))
             }
 
-            password != confirmPass -> {
+            phoneNumber <= 0 -> {
                 eventsChannel.send(AuthEvents.ErrorCode(5))
+            }
+
+            email.isEmpty() -> {
+                eventsChannel.send(AuthEvents.ErrorCode(1))
+            }
+
+            password.isEmpty() -> {
+                eventsChannel.send(AuthEvents.ErrorCode(2))
+            }
+
+            password != confirmPass -> {
+                eventsChannel.send(AuthEvents.ErrorCode(3))
             }
 
             else -> {
@@ -83,19 +83,21 @@ class AuthViewModel @Inject constructor(
                 _firebaseUser.postValue(it)
                 eventsChannel.send(AuthEvents.Message("login success"))
             }
+        } catch (e: FirebaseAuthException) {
+            val errorMessage = e.message
+            errorMessage?.let { AuthEvents.Error(it) }?.let { eventsChannel.send(it) }
         } catch (e: Exception) {
-            val error = e.toString().split(":").toTypedArray()
-            Log.d(TAG, "signInUser: ${error[1]}")
-            eventsChannel.send(AuthEvents.Error(error[1]))
+            val errorMessage = e.message ?: "Sign in failed"
+            eventsChannel.send(AuthEvents.Error(errorMessage))
         }
     }
 
-    private fun actualSignUpUser(
+    private suspend fun actualSignUpUser(
         studentNumber: Int,
         phoneNumber: Long,
         email: String,
         password: String
-    ) = viewModelScope.launch {
+    ) {
         try {
             val user = repository.signUpWithStudentNumberAndPhone(
                 studentNumber,
@@ -104,13 +106,17 @@ class AuthViewModel @Inject constructor(
                 password
             )
             user?.let {
-                _firebaseUser.postValue(it)
+                _firebaseUser.postValue(user)
                 eventsChannel.send(AuthEvents.Message("sign up success"))
             }
+        } catch (e: FirebaseAuthException) {
+
+            val errorMessage = e.message ?: "Sign up failed"
+            eventsChannel.send(AuthEvents.Error(errorMessage))
+
         } catch (e: Exception) {
-            val error = e.toString().split(":").toTypedArray()
-            Log.d(TAG, "signInUser: ${error[1]}")
-            eventsChannel.send(AuthEvents.Error(error[1]))
+            val errorMessage = e.message ?: "Sign up failed"
+            eventsChannel.send(AuthEvents.Error(errorMessage))
         }
     }
 
@@ -125,10 +131,19 @@ class AuthViewModel @Inject constructor(
 
         } catch (e: Exception) {
             val error = e.toString().split(":").toTypedArray()
-            Log.d(TAG, "signInUser: ${error[1]}")
             eventsChannel.send(AuthEvents.Error(error[1]))
         }
     }
+
+    fun saveUser(studentNumber: Int, parentPhone: Long, parentEmail: String) =
+        viewModelScope.launch {
+            val success = repository.saveUser(studentNumber, parentPhone, parentEmail)
+            if (success) {
+                eventsChannel.send(AuthEvents.Message("User saved successfully"))
+            } else {
+                eventsChannel.send(AuthEvents.Error("Failed to save user"))
+            }
+        }
 
     fun getCurrentUser() = viewModelScope.launch {
         val user = repository.getUser()
@@ -156,7 +171,6 @@ class AuthViewModel @Inject constructor(
             }
         } catch (e: Exception) {
             val error = e.toString().split(":").toTypedArray()
-            Log.d(TAG, "signInUser: ${error[1]}")
             eventsChannel.send(AuthEvents.Error(error[1]))
         }
     }

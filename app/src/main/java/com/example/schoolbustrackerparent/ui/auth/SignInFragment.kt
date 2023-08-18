@@ -1,7 +1,6 @@
 package com.example.schoolbustrackerparent.ui.auth
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -24,7 +23,6 @@ class SignInFragment : Fragment(R.layout.fragment_sign_in) {
     private val viewModel: AuthViewModel by activityViewModels()
     private var _binding: FragmentSignInBinding? = null
     private val binding get() = _binding
-    private val TAG = "SignInFragment"
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -89,8 +87,6 @@ class SignInFragment : Fragment(R.layout.fragment_sign_in) {
 
                     is AuthEvents.Message -> {
                         if (event.message == "login success") {
-                            // findNavController().navigate(R.id.action_signInFragment_to_attendanceFragment)
-
                             Toast.makeText(
                                 requireContext(),
                                 "Login success!!!!!!",
@@ -110,9 +106,6 @@ class SignInFragment : Fragment(R.layout.fragment_sign_in) {
                         }
                     }
 
-                    else -> {
-                        Log.d(TAG, "listenToChannels: No event received so far")
-                    }
                 }
             }
         }
@@ -120,9 +113,7 @@ class SignInFragment : Fragment(R.layout.fragment_sign_in) {
 
     override fun onResume() {
         super.onResume()
-        // (requireActivity() as MainActivity).setBottomNavVisibilityGone()
     }
-
 
     override fun onDestroy() {
         super.onDestroy()
