@@ -9,10 +9,12 @@ import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.schoolbustrackerparent.R
 import com.example.schoolbustrackerparent.databinding.FragmentSignInBinding
+import com.example.schoolbustrackerparent.ui.notification.FCMViewModel
 import com.example.schoolbustrackerparent.util.AuthEvents
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -21,6 +23,7 @@ import kotlinx.coroutines.launch
 class SignInFragment : Fragment(R.layout.fragment_sign_in) {
 
     private val viewModel: AuthViewModel by activityViewModels()
+    private val fcmViewModel: FCMViewModel by activityViewModels()
     private var _binding: FragmentSignInBinding? = null
     private val binding get() = _binding
 
@@ -62,6 +65,9 @@ class SignInFragment : Fragment(R.layout.fragment_sign_in) {
                 }
 
                 viewModel.signInUser(email, password)
+
+                fcmViewModel.onUserLoginSuccess(email)
+
             }
 
             textViewSignUp.setOnClickListener {

@@ -13,7 +13,7 @@ interface AuthDataSource {
 
     suspend fun signInWithEmailPassword(email: String, password: String): FirebaseUser?
 
-    suspend fun saveUser(studentNumber: Int, parentPhone: Long, parentEmail: String): Boolean
+    suspend fun saveUser(studentNumber: Int, parentEmail: String): Boolean
 
     fun signOut(): FirebaseUser?
 

@@ -7,6 +7,7 @@ import com.example.schoolbustrackerparent.data.repository.auth.AuthRepository
 import com.example.schoolbustrackerparent.util.AuthEvents
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -135,9 +136,9 @@ class AuthViewModel @Inject constructor(
         }
     }
 
-    fun saveUser(studentNumber: Int, parentPhone: Long, parentEmail: String) =
+    fun saveUser(studentNumber: Int, parentEmail: String) =
         viewModelScope.launch {
-            val success = repository.saveUser(studentNumber, parentPhone, parentEmail)
+            val success = repository.saveUser(studentNumber, parentEmail)
             if (success) {
                 eventsChannel.send(AuthEvents.Message("User saved successfully"))
             } else {

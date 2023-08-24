@@ -11,6 +11,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.schoolbustrackerparent.R
 import com.example.schoolbustrackerparent.databinding.FragmentSignUpBinding
+import com.example.schoolbustrackerparent.ui.notification.FCMViewModel
 import com.example.schoolbustrackerparent.util.AuthEvents
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -19,6 +20,7 @@ import kotlinx.coroutines.launch
 class SignUpFragment : Fragment(R.layout.fragment_sign_up) {
     private val viewModel: AuthViewModel by activityViewModels()
     private var _binding: FragmentSignUpBinding? = null
+    private val fcmViewModel: FCMViewModel by activityViewModels()
     private val binding get() = _binding
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -80,7 +82,8 @@ class SignUpFragment : Fragment(R.layout.fragment_sign_up) {
 
                 viewModel.currentUser.observe(viewLifecycleOwner) { firebaseUser ->
                     if (firebaseUser != null) {
-                        viewModel.saveUser(studentNumber.toInt(), phoneNumber.toLong(), email)
+                        viewModel.saveUser(studentNumber.toInt(), email)
+                        fcmViewModel.onUserLoginSuccess(email)
                     }
                 }
 

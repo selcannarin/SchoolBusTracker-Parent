@@ -28,10 +28,9 @@ class AuthRepositoryImpl @Inject constructor(
 
     override suspend fun saveUser(
         studentNumber: Int,
-        parentPhone: Long,
         parentEmail: String
     ): Boolean {
-        return dataSource.saveUser(studentNumber, parentPhone, parentEmail)
+        return dataSource.saveUser(studentNumber, parentEmail)
     }
 
     override fun signOut(): FirebaseUser? {
