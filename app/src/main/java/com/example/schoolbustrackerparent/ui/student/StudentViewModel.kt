@@ -26,7 +26,7 @@ class StudentViewModel @Inject constructor(
 
     fun getStudent(parentEmail: String) = viewModelScope.launch {
         _student.value = UiState.Loading
-        studentRepository.getStudent(parentEmail) { _updateStudent.value = it }
+        studentRepository.getStudent(parentEmail) { _student.value = it }
     }
 
     fun updateStudent(student: Student) = viewModelScope.launch {
