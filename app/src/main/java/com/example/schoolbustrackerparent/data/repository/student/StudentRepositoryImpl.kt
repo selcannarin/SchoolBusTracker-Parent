@@ -8,8 +8,8 @@ import javax.inject.Inject
 class StudentRepositoryImpl @Inject constructor(
     private val dataSource: StudentDataSource
 ) : StudentRepository {
-    override suspend fun getStudent(studentNumber: Int, result: (UiState<Student>) -> Unit) {
-        return dataSource.getStudent(studentNumber, result)
+    override suspend fun getStudent(parentEmail: String, result: (UiState<Student>) -> Unit) {
+        return dataSource.getStudent(parentEmail, result)
     }
 
     override suspend fun updateStudent(student: Student, result: (UiState<Student>) -> Unit) {

@@ -5,7 +5,7 @@ import com.example.schoolbustrackerparent.util.UiState
 
 interface StudentDataSource {
 
-    suspend fun getStudent(studentNumber: Int, result: (UiState<Student>) -> Unit)
+    suspend fun getStudent(parentEmail: String, result: (UiState<Student>) -> Unit)
 
     suspend fun updateStudent(student: Student, result: (UiState<Student>) -> Unit)
 
