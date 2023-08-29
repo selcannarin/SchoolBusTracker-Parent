@@ -6,7 +6,7 @@ import com.example.schoolbustrackerparent.util.UiState
 
 interface DriverRepository {
 
-    suspend fun getDriver(studentNumber: Int, result: (UiState<Driver>) -> Unit)
+    suspend fun getDriver(parentEmail: String, result: (UiState<Driver>) -> Unit)
 
     suspend fun getProfilePhoto(driver: Driver, result: (UiState<Uri?>) -> Unit)
 

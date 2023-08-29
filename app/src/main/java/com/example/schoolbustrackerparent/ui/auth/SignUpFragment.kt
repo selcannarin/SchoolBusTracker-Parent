@@ -11,6 +11,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.schoolbustrackerparent.R
 import com.example.schoolbustrackerparent.databinding.FragmentSignUpBinding
+import com.example.schoolbustrackerparent.ui.MainActivity
 import com.example.schoolbustrackerparent.ui.notification.FCMViewModel
 import com.example.schoolbustrackerparent.util.AuthEvents
 import dagger.hilt.android.AndroidEntryPoint
@@ -26,6 +27,7 @@ class SignUpFragment : Fragment(R.layout.fragment_sign_up) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentSignUpBinding.bind(view)
+        (activity as MainActivity).setBottomNavVisibilityGone()
         val toolbar = (activity as AppCompatActivity).supportActionBar
         toolbar?.title = "Sign Up"
     }
@@ -36,6 +38,7 @@ class SignUpFragment : Fragment(R.layout.fragment_sign_up) {
         savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentSignUpBinding.inflate(inflater, container, false)
+        (activity as MainActivity).setBottomNavVisibilityGone()
         setupListeners()
         listenToChannels()
         return binding?.root
@@ -84,6 +87,8 @@ class SignUpFragment : Fragment(R.layout.fragment_sign_up) {
                     if (firebaseUser != null) {
                         viewModel.saveUser(studentNumber.toInt(), email)
                         fcmViewModel.onUserLoginSuccess(email)
+
+                        findNavController().navigate(R.id.action_signUpFragment_to_busLocationFragment)
                     }
                 }
 

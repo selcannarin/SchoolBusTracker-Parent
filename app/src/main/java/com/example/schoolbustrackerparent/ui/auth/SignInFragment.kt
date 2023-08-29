@@ -9,11 +9,11 @@ import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.schoolbustrackerparent.R
 import com.example.schoolbustrackerparent.databinding.FragmentSignInBinding
+import com.example.schoolbustrackerparent.ui.MainActivity
 import com.example.schoolbustrackerparent.ui.notification.FCMViewModel
 import com.example.schoolbustrackerparent.util.AuthEvents
 import dagger.hilt.android.AndroidEntryPoint
@@ -68,6 +68,7 @@ class SignInFragment : Fragment(R.layout.fragment_sign_in) {
 
                 fcmViewModel.onUserLoginSuccess(email)
 
+                findNavController().navigate(R.id.action_signInFragment_to_busLocationFragment)
             }
 
             textViewSignUp.setOnClickListener {
@@ -119,6 +120,7 @@ class SignInFragment : Fragment(R.layout.fragment_sign_in) {
 
     override fun onResume() {
         super.onResume()
+        (requireActivity() as MainActivity).setBottomNavVisibilityGone()
     }
 
     override fun onDestroy() {

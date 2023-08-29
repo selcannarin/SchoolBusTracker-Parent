@@ -4,6 +4,8 @@ import com.example.schoolbustrackerparent.data.datasource.auth.AuthDataSource
 import com.example.schoolbustrackerparent.data.datasource.auth.AuthDataSourceImpl
 import com.example.schoolbustrackerparent.data.datasource.driver.DriverDataSource
 import com.example.schoolbustrackerparent.data.datasource.driver.DriverDataSourceImpl
+import com.example.schoolbustrackerparent.data.datasource.location.LocationDataSource
+import com.example.schoolbustrackerparent.data.datasource.location.LocationDataSourceImpl
 import com.example.schoolbustrackerparent.data.datasource.notification.NotificationDataSource
 import com.example.schoolbustrackerparent.data.datasource.notification.NotificationDataSourceImpl
 import com.example.schoolbustrackerparent.data.datasource.student.StudentDataSource
@@ -12,6 +14,8 @@ import com.example.schoolbustrackerparent.data.repository.auth.AuthRepository
 import com.example.schoolbustrackerparent.data.repository.auth.AuthRepositoryImpl
 import com.example.schoolbustrackerparent.data.repository.driver.DriverRepository
 import com.example.schoolbustrackerparent.data.repository.driver.DriverRepositoryImpl
+import com.example.schoolbustrackerparent.data.repository.location.LocationRepository
+import com.example.schoolbustrackerparent.data.repository.location.LocationRepositoryImpl
 import com.example.schoolbustrackerparent.data.repository.notification.NotificationRepository
 import com.example.schoolbustrackerparent.data.repository.notification.NotificationRepositoryImpl
 import com.example.schoolbustrackerparent.data.repository.student.StudentRepository
@@ -112,6 +116,22 @@ object AppModule {
         dataSource: NotificationDataSource
     ): NotificationRepository {
         return NotificationRepositoryImpl(dataSource)
+    }
+
+    @Singleton
+    @Provides
+    fun getLocationDataSource(
+        firestore: FirebaseFirestore
+    ): LocationDataSource {
+        return LocationDataSourceImpl(firestore)
+    }
+
+    @Singleton
+    @Provides
+    fun getLocationRepository(
+        dataSource: LocationDataSource
+    ): LocationRepository {
+        return LocationRepositoryImpl(dataSource)
     }
 
 }

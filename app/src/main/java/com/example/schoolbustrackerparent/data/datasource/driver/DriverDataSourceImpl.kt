@@ -13,23 +13,36 @@ class DriverDataSourceImpl @Inject constructor(
     private val storage: FirebaseStorage
 ) : DriverDataSource {
 
-    override suspend fun getDriver(studentNumber: Int, result: (UiState<Driver>) -> Unit) {
+    override suspend fun getDriver(parentEmail: String, result: (UiState<Driver>) -> Unit) {
         try {
-            val driverQuery =
-                firestore.collection("drivers").whereArrayContains("students", studentNumber)
-            val driverSnapshot = driverQuery.get().await()
+            val parentDocument = firestore.collection("parents").document(parentEmail).get().await()
 
-            if (!driverSnapshot.isEmpty) {
-                val driverDocument = driverSnapshot.documents[0]
-                val driver = driverDocument.toObject(Driver::class.java)
+            if (parentDocument.exists()) {
+                val studentNumber = parentDocument.getLong("student_number")
 
-                if (driver != null) {
-                    result(UiState.Success(driver))
+                if (studentNumber != null) {
+                    val driverQuery =
+                        firestore.collection("drivers")
+                            .whereArrayContains("students", studentNumber)
+                    val driverSnapshot = driverQuery.get().await()
+
+                    if (!driverSnapshot.isEmpty) {
+                        val driverDocument = driverSnapshot.documents[0]
+                        val driver = driverDocument.toObject(Driver::class.java)
+
+                        if (driver != null) {
+                            result(UiState.Success(driver))
+                        } else {
+                            result(UiState.Failure("Failed to parse driver data"))
+                        }
+                    } else {
+                        result(UiState.Failure("Driver not found for student $studentNumber"))
+                    }
                 } else {
-                    result(UiState.Failure("Failed to parse driver data"))
+                    result(UiState.Failure("Student number not found for email $parentEmail"))
                 }
             } else {
-                result(UiState.Failure("Driver not found for student $studentNumber"))
+                result(UiState.Failure("Parent not found for email $parentEmail"))
             }
         } catch (e: Exception) {
             result(UiState.Failure(e.localizedMessage ?: "An error occurred"))

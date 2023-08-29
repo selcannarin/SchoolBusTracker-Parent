@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
     app:startDestination="@id/signInFragment">
 
@@ -14,6 +15,9 @@
         <action
             android:id="@+id/action_signInFragment_to_resetPasswordFragment"
             app:destination="@id/resetPasswordFragment" />
+        <action
+            android:id="@+id/action_signInFragment_to_busLocationFragment"
+            app:destination="@id/busLocationFragment" />
     </fragment>
     <fragment
         android:id="@+id/signUpFragment"
@@ -22,6 +26,9 @@
         <action
             android:id="@+id/action_signUpFragment_to_signInFragment"
             app:destination="@id/signInFragment" />
+        <action
+            android:id="@+id/action_signUpFragment_to_busLocationFragment"
+            app:destination="@id/busLocationFragment" />
     </fragment>
     <fragment
         android:id="@+id/resetPasswordFragment"
@@ -31,4 +38,26 @@
             android:id="@+id/action_resetPasswordFragment_to_signInFragment"
             app:destination="@id/signInFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/busLocationFragment"
+        android:name="com.example.schoolbustrackerparent.ui.location.BusLocationFragment"
+        android:label="fragment_bus_location"
+        tools:layout="@layout/fragment_driver_location" >
+        <action
+            android:id="@+id/action_busLocationFragment_to_driverFragment"
+            app:destination="@id/driverFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/studentFragment"
+        android:name="com.example.schoolbustrackerparent.ui.student.StudentFragment"
+        android:label="fragment_student"
+        tools:layout="@layout/fragment_student" >
+        <action
+            android:id="@+id/action_studentFragment_self"
+            app:destination="@id/studentFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/driverFragment"
+        android:name="com.example.schoolbustrackerparent.ui.driver.DriverFragment"
+        android:label="DriverFragment" />
 </navigation>

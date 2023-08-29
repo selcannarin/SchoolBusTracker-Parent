@@ -2,4 +2,6 @@
     <string name="app_name">SchoolBusTrackerParent</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="location">bus location</string>
+    <string name="student">student</string>
 </resources>

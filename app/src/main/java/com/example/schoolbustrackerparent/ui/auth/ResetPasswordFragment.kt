@@ -12,6 +12,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.schoolbustrackerparent.R
 import com.example.schoolbustrackerparent.databinding.FragmentResetPasswordBinding
+import com.example.schoolbustrackerparent.ui.MainActivity
 import com.example.schoolbustrackerparent.util.AuthEvents
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -26,7 +27,7 @@ class ResetPasswordFragment : Fragment(R.layout.fragment_reset_password) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentResetPasswordBinding.bind(view)
-        // (activity as MainActivity).setBottomNavVisibilityGone()
+        (activity as MainActivity).setBottomNavVisibilityGone()
         val toolbar = (activity as AppCompatActivity).supportActionBar
         toolbar?.title = "Reset Password"
     }
@@ -35,7 +36,7 @@ class ResetPasswordFragment : Fragment(R.layout.fragment_reset_password) {
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentResetPasswordBinding.inflate(inflater, container, false)
-        // (activity as MainActivity).setBottomNavVisibilityGone()
+        (activity as MainActivity).setBottomNavVisibilityGone()
         setUpWidgets()
         listenToChannels()
         return binding?.root

@@ -10,8 +10,8 @@ class DriverRepositoryImpl @Inject constructor(
     private val dataSource: DriverDataSource
 ) : DriverRepository {
 
-    override suspend fun getDriver(studentNumber: Int, result: (UiState<Driver>) -> Unit) {
-        return dataSource.getDriver(studentNumber, result)
+    override suspend fun getDriver(parentEmail: String, result: (UiState<Driver>) -> Unit) {
+        return dataSource.getDriver(parentEmail, result)
     }
 
     override suspend fun getProfilePhoto(driver: Driver, result: (UiState<Uri?>) -> Unit) {
