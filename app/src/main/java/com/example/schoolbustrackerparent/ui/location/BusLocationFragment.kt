@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.example.schoolbustrackerparent.R
+import com.example.schoolbustrackerparent.data.model.Location
 import com.example.schoolbustrackerparent.databinding.FragmentDriverLocationBinding
 import com.example.schoolbustrackerparent.ui.MainActivity
 import com.example.schoolbustrackerparent.ui.driver.DriverViewModel
@@ -22,11 +23,14 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.Timer
+import java.util.TimerTask
 import javax.inject.Inject
+
 
 @AndroidEntryPoint
 class BusLocationFragment : Fragment(), OnMapReadyCallback {
@@ -36,17 +40,17 @@ class BusLocationFragment : Fragment(), OnMapReadyCallback {
 
     private var _binding: FragmentDriverLocationBinding? = null
     private val binding get() = _binding
-    private val TAG = "BusLocationFragment"
 
     private val driverViewModel: DriverViewModel by activityViewModels()
     private val locationViewModel: BusLocationViewModel by activityViewModels()
     private val studentViewModel: StudentViewModel by activityViewModels()
 
+    private val TAG = "BusLocationFragment"
     private lateinit var googleMap: GoogleMap
+    private var currentUserMarker: Marker? = null
+    private var locationTimer: Timer? = null
+    private var locationTimerTask: TimerTask? = null
 
-    //private val LOCATION_PERMISSION_REQUEST_CODE = 1001
-    private val locationUpdateInterval = 30000L
-    private lateinit var locationTimer: Timer
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentDriverLocationBinding.bind(view)
@@ -56,7 +60,7 @@ class BusLocationFragment : Fragment(), OnMapReadyCallback {
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as? SupportMapFragment
         mapFragment?.getMapAsync(this)
 
-        //  locationTimer = Timer()
+
     }
 
     override fun onCreateView(
@@ -65,9 +69,55 @@ class BusLocationFragment : Fragment(), OnMapReadyCallback {
     ): View? {
         _binding = FragmentDriverLocationBinding.inflate(inflater, container, false)
         (activity as MainActivity).setBottomNavVisibilityVisible()
+
         setupDriverInfo()
         getStudentAddress()
+        startLocationUpdates()
+
         return binding?.root
+    }
+
+    private fun startLocationUpdates() {
+        // Initialize the timer and timer task
+        locationTimer = Timer()
+        locationTimerTask = object : TimerTask() {
+            override fun run() {
+                // Fetch the driver's location here
+                val parentEmail = firebaseAuth.currentUser?.email
+
+                if (parentEmail != null) {
+                    driverViewModel.getDriver(parentEmail)
+
+                    // Observe LiveData directly without switching to the main thread
+                    view?.post {
+                        driverViewModel.driver.observe(viewLifecycleOwner) { driver ->
+                            when (driver) {
+                                is UiState.Success -> {
+                                    val driverInfo = driver.data
+                                    if (driverInfo.email != null) {
+                                        getLatestBusLocation(driverInfo.email)
+                                    }
+                                }
+
+                                is UiState.Loading -> {
+                                    Log.d(TAG, "Loading driver data.")
+                                }
+
+                                else -> {
+                                    Log.e(TAG, "Failed to get driver data.")
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        locationTimer?.schedule(
+            locationTimerTask,
+            0,
+            30000
+        )
     }
 
     private fun setupDriverInfo() {
@@ -80,7 +130,6 @@ class BusLocationFragment : Fragment(), OnMapReadyCallback {
                 when (driver) {
                     is UiState.Success -> {
                         val driverInfo = driver.data
-
 
                         binding?.apply {
                             textViewDriverName.text = driverInfo.fullName
@@ -130,10 +179,11 @@ class BusLocationFragment : Fragment(), OnMapReadyCallback {
                 when (studentState) {
                     is UiState.Success -> {
                         val studentInfo = studentState.data
-                        val studentAddressLocation = locationViewModel.getLocationFromAddress(
-                            requireContext(),
-                            studentInfo.student_address
-                        )
+                        val studentAddressLocation =
+                            locationViewModel.getLocationFromAddress(
+                                requireContext(),
+                                studentInfo.student_address
+                            )
                         showStudentAddressOnMap(studentAddressLocation)
                     }
 
@@ -158,7 +208,35 @@ class BusLocationFragment : Fragment(), OnMapReadyCallback {
 
     override fun onMapReady(googleMap: GoogleMap) {
         this.googleMap = googleMap
+    }
 
+    private fun getLatestBusLocation(driverEmail: String) {
+        locationViewModel.getLatestBusLocation(driverEmail)
+        locationViewModel.getLatestBusLocation.observe(viewLifecycleOwner) { location ->
+            if (location != null) {
+                updateMapWithLocation(location)
+            }
+        }
+    }
+
+    private fun updateMapWithLocation(location: Location) {
+        val latitude = location.latitude
+        val longitude = location.longitude
+        val busLocation = LatLng(latitude, longitude)
+        currentUserMarker?.remove()
+        currentUserMarker = googleMap.addMarker(
+            MarkerOptions()
+                .position(busLocation)
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.custom_marker_driver_icon))
+                .title("Driver Location")
+        )
+        googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(busLocation, 15f))
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        locationTimer?.cancel()
+        locationTimerTask?.cancel()
     }
 
 }

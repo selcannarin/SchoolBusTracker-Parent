@@ -14,27 +14,30 @@ class LocationDataSourceImpl @Inject constructor(
 ) : LocationDataSource {
 
     override fun getLatestBusLocation(driverEmail: String, callback: (Location?) -> Unit) {
-
-        val locationCollection = firestore.collection("locations")
-        locationCollection
-        locationCollection
-            .whereEqualTo("driverEmail", driverEmail)
+        val driverRef = firestore.collection("locations").document(driverEmail)
+        driverRef.collection("timestamps")
             .orderBy("timestamp", Query.Direction.DESCENDING)
             .limit(1)
             .get()
-            .addOnSuccessListener { querySnapshot ->
-                if (!querySnapshot.isEmpty) {
-                    val latestLocation = querySnapshot.documents[0].toObject(Location::class.java)
-                    callback(latestLocation)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val querySnapshot = task.result
+                    if (querySnapshot != null && !querySnapshot.isEmpty) {
+                        val latestLocation =
+                            querySnapshot.documents[0].toObject(Location::class.java)
+                        callback(latestLocation)
+                    } else {
+                        Log.d(TAG, "Document not found or empty.")
+                        callback(null)
+                    }
                 } else {
+                    val exception = task.exception
+                    Log.e(TAG, "Firestore query failed: $exception")
                     callback(null)
                 }
             }
-            .addOnFailureListener { exception ->
-                Log.e(TAG, exception.toString())
-                callback(null)
-            }
     }
+
 
     override suspend fun getStudentAddressByNumber(studentNumber: Int, result: (String?) -> Unit) {
         try {
