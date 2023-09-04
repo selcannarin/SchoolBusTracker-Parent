@@ -67,9 +67,8 @@ class SignInFragment : Fragment(R.layout.fragment_sign_in) {
                 viewModel.signInUser(email, password)
 
                 fcmViewModel.onUserLoginSuccess(email)
-
-                findNavController().navigate(R.id.action_signInFragment_to_busLocationFragment)
             }
+
 
             textViewSignUp.setOnClickListener {
                 findNavController().navigate(R.id.action_signInFragment_to_signUpFragment)
@@ -99,6 +98,7 @@ class SignInFragment : Fragment(R.layout.fragment_sign_in) {
                                 "Login success!!!!!!",
                                 Toast.LENGTH_LONG
                             ).show()
+                            findNavController().navigate(R.id.action_signInFragment_to_busLocationFragment)
                         }
                     }
 
