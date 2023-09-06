@@ -7,17 +7,15 @@ import com.example.schoolbustrackerparent.data.repository.auth.AuthRepository
 import com.example.schoolbustrackerparent.util.AuthEvents
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-
 @HiltViewModel
 class AuthViewModel @Inject constructor(
-    private val repository: AuthRepository
+    private val repository: AuthRepository,
 ) : ViewModel() {
 
     private val _firebaseUser = MutableLiveData<FirebaseUser?>()
@@ -108,6 +106,7 @@ class AuthViewModel @Inject constructor(
             )
             user?.let {
                 _firebaseUser.postValue(user)
+                saveUser(studentNumber, email)
                 eventsChannel.send(AuthEvents.Message("sign up success"))
             }
         } catch (e: FirebaseAuthException) {

@@ -1,10 +1,11 @@
 package com.example.schoolbustrackerparent.ui.auth
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AppCompatActivity
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
@@ -14,11 +15,18 @@ import com.example.schoolbustrackerparent.databinding.FragmentSignUpBinding
 import com.example.schoolbustrackerparent.ui.MainActivity
 import com.example.schoolbustrackerparent.ui.notification.FCMViewModel
 import com.example.schoolbustrackerparent.util.AuthEvents
+import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class SignUpFragment : Fragment(R.layout.fragment_sign_up) {
+
+    @Inject
+    lateinit var firebaseAuth: FirebaseAuth
+    private var authStateListener: FirebaseAuth.AuthStateListener? = null
+
     private val viewModel: AuthViewModel by activityViewModels()
     private var _binding: FragmentSignUpBinding? = null
     private val fcmViewModel: FCMViewModel by activityViewModels()
@@ -28,17 +36,16 @@ class SignUpFragment : Fragment(R.layout.fragment_sign_up) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentSignUpBinding.bind(view)
         (activity as MainActivity).setBottomNavVisibilityGone()
-        val toolbar = (activity as AppCompatActivity).supportActionBar
-        toolbar?.title = "Sign Up"
+        (requireActivity() as MainActivity).hideNavigationDrawer()
+        (requireActivity() as MainActivity).setToolbarTitle("Sign Up")
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentSignUpBinding.inflate(inflater, container, false)
         (activity as MainActivity).setBottomNavVisibilityGone()
+        (requireActivity() as MainActivity).hideNavigationDrawer()
         setupListeners()
         listenToChannels()
         return binding?.root
@@ -53,9 +60,7 @@ class SignUpFragment : Fragment(R.layout.fragment_sign_up) {
                 val password = editTextPassword.text.toString()
                 val confirmPassword = editTextConfirmPassword.text.toString()
 
-                if (studentNumber.isEmpty() || phoneNumber.isEmpty() || email.isEmpty() ||
-                    password.isEmpty() || confirmPassword.isEmpty()
-                ) {
+                if (studentNumber.isEmpty() || phoneNumber.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
                     textViewErrorSignUp.text = "Please fill in all fields"
                     return@setOnClickListener
                 }
@@ -76,22 +81,8 @@ class SignUpFragment : Fragment(R.layout.fragment_sign_up) {
                 }
 
                 viewModel.signUpUser(
-                    studentNumber.toInt(),
-                    phoneNumber.toLong(),
-                    email,
-                    password,
-                    confirmPassword
+                    studentNumber.toInt(), phoneNumber.toLong(), email, password, confirmPassword
                 )
-
-                viewModel.currentUser.observe(viewLifecycleOwner) { firebaseUser ->
-                    if (firebaseUser != null) {
-                        viewModel.saveUser(studentNumber.toInt(), email)
-                        fcmViewModel.onUserLoginSuccess(email)
-
-                        findNavController().navigate(R.id.action_signUpFragment_to_busLocationFragment)
-                    }
-                }
-
             }
 
             textViewSignIn.setOnClickListener {
@@ -100,8 +91,10 @@ class SignUpFragment : Fragment(R.layout.fragment_sign_up) {
         }
     }
 
+    private var isNavigationPerformed = false
     private fun listenToChannels() {
         viewLifecycleOwner.lifecycleScope.launch {
+
             viewModel.allEventsFlow.collect { event ->
                 when (event) {
                     is AuthEvents.Error -> {
@@ -111,8 +104,17 @@ class SignUpFragment : Fragment(R.layout.fragment_sign_up) {
                     }
 
                     is AuthEvents.Message -> {
-                        if (event.message == "sign up success") {
-
+                        if (event.message == "sign up success" && !isNavigationPerformed) {
+                            isNavigationPerformed = true
+                            Toast.makeText(
+                                requireContext(), "Register success!", Toast.LENGTH_LONG
+                            ).show()
+                            firebaseAuth.currentUser?.email?.let {
+                                fcmViewModel.onUserLoginSuccess(
+                                    it
+                                )
+                            }
+                            findNavController().navigate(R.id.action_signUpFragment_to_busLocationFragment)
                         }
                     }
 
@@ -139,6 +141,34 @@ class SignUpFragment : Fragment(R.layout.fragment_sign_up) {
                 }
             }
         }
+    }
+
+    private fun startAuthStateListener() {
+        if (authStateListener == null) {
+            authStateListener = FirebaseAuth.AuthStateListener { firebaseAuth ->
+                Log.i("firebase", "AuthState changed to ${firebaseAuth.currentUser?.uid}")
+                if (firebaseAuth.currentUser != null && !isNavigationPerformed) {
+                    isNavigationPerformed = true
+                    firebaseAuth.currentUser?.email?.let { fcmViewModel.onUserLoginSuccess(it) }
+                    findNavController().navigate(R.id.action_signUpFragment_to_busLocationFragment)
+                }
+            }
+            firebaseAuth.addAuthStateListener(authStateListener!!)
+        }
+    }
+
+    private fun stopAuthStateListener() {
+        authStateListener?.let { firebaseAuth.removeAuthStateListener(it) }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        startAuthStateListener()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        stopAuthStateListener()
     }
 
     override fun onDestroy() {
