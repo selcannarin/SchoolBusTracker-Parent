@@ -7,7 +7,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.example.schoolbustrackerparent.databinding.FragmentDriverBinding
@@ -33,8 +32,8 @@ class DriverFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentDriverBinding.bind(view)
-        val toolbar = (activity as AppCompatActivity).supportActionBar
-        toolbar?.title = "Driver Info"
+        (activity as MainActivity).showNavigationDrawer()
+        (requireActivity() as MainActivity).setToolbarTitle("Driver Info")
     }
 
     override fun onCreateView(
@@ -43,6 +42,7 @@ class DriverFragment : Fragment() {
     ): View? {
         _binding = FragmentDriverBinding.inflate(inflater, container, false)
         (activity as MainActivity).setBottomNavVisibilityVisible()
+        (activity as MainActivity).showNavigationDrawer()
         getDriverInfo()
         return binding?.root
     }

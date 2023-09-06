@@ -33,8 +33,8 @@ class StudentFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentStudentBinding.bind(view)
-        val toolbar = (activity as AppCompatActivity).supportActionBar
-        toolbar?.title = "Student Info"
+        (requireActivity() as MainActivity).setToolbarTitle("Student Info")
+        (activity as MainActivity).showNavigationDrawer()
     }
 
     override fun onCreateView(
@@ -43,6 +43,7 @@ class StudentFragment : Fragment() {
     ): View? {
         _binding = FragmentStudentBinding.inflate(inflater, container, false)
         (activity as MainActivity).setBottomNavVisibilityVisible()
+        (activity as MainActivity).showNavigationDrawer()
 
         getStudentDetails()
         initListener()

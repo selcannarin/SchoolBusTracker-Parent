@@ -4,4 +4,11 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="location">bus location</string>
     <string name="student">student</string>
+    <string name="menu_busLocation">Bus Location</string>
+    <string name="menu_driverInfo">Driver Information</string>
+    <string name="menu_studentInfo">Student Information</string>
+    <string name="menu_editStudent">Edit Student Info</string>
+    <string name="menu_signOut">Sign Out</string>
+    <string name="open">Open</string>
+    <string name="close">Close</string>
 </resources>

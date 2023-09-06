@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="menu_busLocation">Bus Location</string>
+    <string name="menu_studentInfo">Student Information</string>
+    <string name="menu_editStudent">Edit Student Info</string>
+    <string name="menu_signOut">Sign Out</string>
+    <string name="open">Open</string>
+    <string name="close">Close</string>
+</resources>

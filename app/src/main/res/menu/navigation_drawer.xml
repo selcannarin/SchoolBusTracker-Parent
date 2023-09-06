@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_busLocation"
+            android:icon="@drawable/ic_bus_location"
+            android:title="@string/menu_busLocation" />
+
+        <item
+            android:id="@+id/nav_driverInfo"
+            android:icon="@drawable/ic_driver"
+            android:title="@string/menu_driverInfo" />
+
+        <item
+            android:id="@+id/nav_studentInfo"
+            android:icon="@drawable/ic_student"
+            android:title="@string/menu_studentInfo" />
+
+        <item
+            android:id="@+id/nav_editStudent"
+            android:icon="@drawable/ic_edit_student"
+            android:title="@string/menu_editStudent" />
+
+        <item
+            android:id="@+id/nav_signOut"
+            android:icon="@drawable/ic_sign_out"
+            android:title="@string/menu_signOut" />
+    </group>
+</menu>

@@ -5,7 +5,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
@@ -54,8 +53,8 @@ class BusLocationFragment : Fragment(), OnMapReadyCallback {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentDriverLocationBinding.bind(view)
-        val toolbar = (activity as AppCompatActivity).supportActionBar
-        toolbar?.title = "Bus Location"
+        (requireActivity() as MainActivity).setToolbarTitle("Bus Location")
+        (activity as MainActivity).showNavigationDrawer()
 
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as? SupportMapFragment
         mapFragment?.getMapAsync(this)
@@ -69,6 +68,7 @@ class BusLocationFragment : Fragment(), OnMapReadyCallback {
     ): View? {
         _binding = FragmentDriverLocationBinding.inflate(inflater, container, false)
         (activity as MainActivity).setBottomNavVisibilityVisible()
+        (activity as MainActivity).showNavigationDrawer()
 
         setupDriverInfo()
         getStudentAddress()
