@@ -80,9 +80,14 @@ class SignUpFragment : Fragment(R.layout.fragment_sign_up) {
                     return@setOnClickListener
                 }
 
+                stopAuthStateListener()
+
                 viewModel.signUpUser(
                     studentNumber.toInt(), phoneNumber.toLong(), email, password, confirmPassword
                 )
+
+                startAuthStateListener()
+
             }
 
             textViewSignIn.setOnClickListener {
