@@ -55,7 +55,7 @@ class DriverDataSourceImpl @Inject constructor(
         result: (UiState<Uri?>) -> Unit
     ) {
         try {
-            val photoRef = storage.reference.child("photos/${driver.email}.jpg")
+            val photoRef = storage.reference.child("photos/${driver.email}")
 
             val listResult = photoRef.parent?.listAll()?.await()
             val profilePhoto = listResult?.items?.firstOrNull()
@@ -76,7 +76,7 @@ class DriverDataSourceImpl @Inject constructor(
         result: (UiState<Uri?>) -> Unit
     ) {
         try {
-            val fileRef = storage.reference.child("files/${driver.email}.jpg")
+            val fileRef = storage.reference.child("files/${driver.email}")
 
             val listResult = fileRef.parent?.listAll()?.await()
             val licencePlateFile = listResult?.items?.firstOrNull()
