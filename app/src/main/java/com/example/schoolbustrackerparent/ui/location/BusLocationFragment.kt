@@ -23,6 +23,7 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.firebase.auth.FirebaseAuth
@@ -48,6 +49,8 @@ class BusLocationFragment : Fragment(), OnMapReadyCallback {
     private val TAG = "BusLocationFragment"
     private lateinit var googleMap: GoogleMap
     private var currentUserMarker: Marker? = null
+    private val allMarkers: MutableList<Marker> = mutableListOf()
+
     private var locationTimer: Timer? = null
     private var locationTimerTask: TimerTask? = null
 
@@ -80,17 +83,14 @@ class BusLocationFragment : Fragment(), OnMapReadyCallback {
     }
 
     private fun startLocationUpdates() {
-        // Initialize the timer and timer task
         locationTimer = Timer()
         locationTimerTask = object : TimerTask() {
             override fun run() {
-                // Fetch the driver's location here
                 val parentEmail = firebaseAuth.currentUser?.email
 
                 if (parentEmail != null) {
                     driverViewModel.getDriver(parentEmail)
 
-                    // Observe LiveData directly without switching to the main thread
                     view?.post {
                         driverViewModel.driver.observe(viewLifecycleOwner) { driver ->
                             when (driver) {
@@ -197,19 +197,34 @@ class BusLocationFragment : Fragment(), OnMapReadyCallback {
     }
 
     private fun showStudentAddressOnMap(location: LatLng?) {
-        val markerOptions = location?.let {
-            MarkerOptions().icon(
-                BitmapDescriptorFactory.fromResource(R.drawable.custom_marker_student_icon)
-            ).position(it).title("Student Address")
+
+        val studentHouseMarker = location?.let {
+            MarkerOptions()
+                .position(it)
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.custom_marker_student_icon))
+                .title("Student Address")
+        }?.let {
+            googleMap.addMarker(
+                it
+            )
         }
-        markerOptions?.let { googleMap.addMarker(it) }
-        location?.let { googleMap.moveCamera(CameraUpdateFactory.newLatLng(it)) }
-        location?.let { CameraUpdateFactory.newLatLngZoom(it, 15f) }
-            ?.let { googleMap.animateCamera(it) }
+        studentHouseMarker?.let { allMarkers.add(it) }
+        showAllMarkers()
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
         this.googleMap = googleMap
+    }
+
+    private fun showAllMarkers() {
+        val builder = LatLngBounds.Builder()
+        for (marker in allMarkers) {
+            builder.include(marker.position)
+        }
+        val bounds = builder.build()
+        val padding = 150
+        val cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, padding)
+        googleMap.moveCamera(cameraUpdate)
     }
 
     private fun getLatestBusLocation(driverEmail: String) {
@@ -232,7 +247,8 @@ class BusLocationFragment : Fragment(), OnMapReadyCallback {
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.custom_marker_driver_icon))
                 .title("Driver Location")
         )
-        googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(busLocation, 15f))
+        currentUserMarker?.let { allMarkers.add(it) }
+        showAllMarkers()
     }
 
     private fun onBackPressed() {
