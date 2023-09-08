@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
@@ -70,6 +71,7 @@ class BusLocationFragment : Fragment(), OnMapReadyCallback {
         (activity as MainActivity).setBottomNavVisibilityVisible()
         (activity as MainActivity).showNavigationDrawer()
 
+        onBackPressed()
         setupDriverInfo()
         getStudentAddress()
         startLocationUpdates()
@@ -231,6 +233,12 @@ class BusLocationFragment : Fragment(), OnMapReadyCallback {
                 .title("Driver Location")
         )
         googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(busLocation, 15f))
+    }
+
+    private fun onBackPressed() {
+        requireActivity().onBackPressedDispatcher.addCallback(this) {
+            requireActivity().finish()
+        }
     }
 
     override fun onDestroy() {
